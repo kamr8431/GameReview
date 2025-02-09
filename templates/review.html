@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="en">
+   <head>
+      <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <title>Game Review</title>
+      <style>
+         body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f5f5f5;
+            display: flex;
+            flex-direction: row;
+            justify-content: space-between;
+         }
+         .container {
+            width: 45%;
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+         }
+         .board-container {
+            width: 50%;
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+         }
+         h1, h2 {
+            text-align: center;
+         }
+         table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+         }
+         th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: center;
+         }
+         th {
+            background-color: #4CAF50;
+            color: white;
+         }
+         .white {
+            background-color: #ffffff;
+         }
+         .black {
+            background-color: #e6e6e6;
+         }
+         .icon {
+            width: 20px;
+            height: 20px;
+         }
+         .board-wrapper {
+            display: flex;
+            align-items: center;
+         }
+         .chess-board {
+            width: 1000px;
+            height: 1000px;
+            background-color: #f0d9b5;
+            display: grid;
+            grid-template-columns: repeat(8, 1fr);
+            grid-template-rows: repeat(8, 1fr);
+            margin-bottom: 20px;
+            position: relative;
+         }
+         .chess-board div {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+         }
+         .chess-board .dark {
+            background-color: #b58863;
+         }
+         .piece {
+            width: 90%;
+            height: 90%;
+            object-fit: contain;
+            position: absolute;
+         }
+         .move-eval-display {
+            margin-left: 20px;
+            font-size: 18px;
+            font-weight: bold;
+            text-align: center;
+         }
+         .controls {
+            margin-top: 20px;
+         }
+         .controls button {
+            padding: 10px 20px;
+            margin: 0 5px;
+            font-size: 16px;
+            cursor: pointer;
+         }
+         .current-move-info {
+            margin-top: 20px;
+            text-align: center;
+            font-size: 18px;
+            font-weight: bold;
+         }
+         .current-move-info p {
+            margin: 10px 0;
+         }
+      </style>
+   </head>
+   <body>
+      <div class="container">
+         <h1 id="opening"></h1>
+         <h2 id="players"></h2>
+         <table>
+            <thead>
+               <tr>
+                  <th>White Moves</th>
+                  <th>Classification</th>
+                  <th>Black Moves</th>
+                  <th>Classification</th>
+               </tr>
+            </thead>
+            <tbody id="moves"></tbody>
+         </table>
+      </div>
+      <div class="board-container">
+         <div class="board-wrapper">
+            <div class="chess-board" id="chess-board"></div>
+            <div class="move-eval-display" id="move-eval-display"></div>
+         </div>
+         <div class="controls">
+            <button id="prev-move">&larr; Previous</button>
+            <button id="next-move">Next &rarr;</button>
+         </div>
+         <div class="current-move-info">
+            <p>Current Evaluation: <span id="current-eval">0.00</span></p>
+            <p>Current Classification: <img id="current-classification-icon" src="" alt="" class="icon"></p>
+            <p>Current Move: <span id="current-move">-</span></p>
+         </div>
+      </div>
+      <script>
+         const classificationIcons = {
+            'Brilliant': "{{ url_for('static', filename='brilliant.png') }}",
+            'Great': "{{ url_for('static', filename='great.png') }}",
+            'Best': "{{ url_for('static', filename='best.png') }}",
+            'Excellent': "{{ url_for('static', filename='excellent.png') }}",
+            'Good': "{{ url_for('static', filename='good.png') }}",
+            'Book': "{{ url_for('static', filename='book.png') }}",
+            'Inaccuracy': "{{ url_for('static', filename='inaccuracy.png') }}",
+            'Mistake': "{{ url_for('static', filename='mistake.png') }}",
+            'Blunder': "{{ url_for('static', filename='blunder.png') }}"
+         };
+
+         const results = JSON.parse('{{ results|tojson|safe }}');
+         const positions = JSON.parse('{{ positions|tojson|safe }}');
+         const evals = JSON.parse('{{ evals|tojson|safe }}');
+
+         document.getElementById("opening").innerText = results[2];
+         document.getElementById("players").innerText = `${results[3][0]} (${results[3][1]}) vs ${results[4][0]} (${results[4][1]})`;
+
+         const movesTable = document.getElementById("moves");
+         //const whiteMoves = results[1].filter((_, i) => i % 2 === 0);
+         //const blackMoves = results[1].filter((_, i) => i % 2 !== 0);
+         const classifications = results[0];
+         //const maxMoves = Math.max(whiteMoves.length, blackMoves.length);
+
+         for (let i = 0; i < results[1].length; i+=2) {
+            const row = document.createElement("tr");
+            row.innerHTML = `
+               <td class="white">${results[1][i] || ""}</td>
+               <td><img class="icon" src="${classificationIcons[classifications[i]] || ""}" alt=""></td>
+               <td class="black">${results[1][i+1] || ""}</td>
+               <td><img class="icon" src="${classificationIcons[classifications[i + 1]] || ""}" alt=""></td>
+            `;
+            movesTable.appendChild(row);
+         }
+
+         // Chess board setup
+         const chessBoard = document.getElementById('chess-board');
+         const squares = [];
+         for (let row = 0; row < 8; row++) {
+            for (let col = 0; col < 8; col++) {
+               const square = document.createElement('div');
+               if ((row + col) % 2 === 0) {
+                  square.classList.add('light');
+               } else {
+                  square.classList.add('dark');
+               }
+               chessBoard.appendChild(square);
+               squares.push(square);
+            }
+         }
+
+         // Function to update the board based on the move index
+         let currentMoveIndex = 0;
+
+         function updateBoard(moveIndex) {
+            const move = results[1][moveIndex];
+            const evalValue = evals[moveIndex] / 100 || 0;
+            const classification = classifications[moveIndex];
+            document.getElementById('current-eval').innerText = evalValue;
+            document.getElementById('current-classification-icon').src = classificationIcons[classification] || '';
+            document.getElementById('current-move').innerText = move;
+            const fen = positions[moveIndex];
+            const rows = fen.split('/');
+            rows[rows.length-1] = rows[rows.length-1].split(' ')[0];
+            let squareIndex = 0;
+            squares.forEach(square => {
+               square.innerHTML = '';
+            });
+            rows.forEach(row => {
+               for (let char of row) {
+                  if (/\d/.test(char)) {
+                     squareIndex += parseInt(char);
+                  } else {
+                     const img = document.createElement('img');
+                     let col;
+                     if (char === char.toUpperCase()) {
+                        col = 'w';
+                     } else {
+                        col = 'b';
+                     }
+                     img.src = `{{ url_for('static', filename='pieces/') }}${col}${char.toUpperCase()}.png`;
+                     img.classList.add('piece');
+                     squares[squareIndex].innerHTML = '';
+                     squares[squareIndex].appendChild(img);
+                     squareIndex++;
+                  }
+               }
+            });
+         }
+
+         // Arrow key controls
+         document.getElementById('prev-move').addEventListener('click', () => {
+            if (currentMoveIndex > 0) {
+               currentMoveIndex--;
+               updateBoard(currentMoveIndex);
+            }
+         });
+
+         document.getElementById('next-move').addEventListener('click', () => {
+            if (currentMoveIndex < positions.length - 1) {
+               currentMoveIndex++;
+               updateBoard(currentMoveIndex);
+    
+            }
+         });
+
+         // Initialize the board with the first position
+         updateBoard(currentMoveIndex);
+      </script>
+   </body>
+</html>
