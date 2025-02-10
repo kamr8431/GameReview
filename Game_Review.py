@@ -20,7 +20,7 @@ class GameReview:
         }
         self.allgames = self.fetch_all_games()
         self.board = chess.Board()
-        self.stockfish = Stockfish("./stockfish")
+        self.stockfish = Stockfish("stockfish")
         self.prev_eval = 0
         self.eval = 39
         self.opening = ""
