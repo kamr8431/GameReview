@@ -19,6 +19,7 @@ def review():
         return render_template('error.html')'''
     review = GameReview(username)
     results = review.gameReview(link)
+    print(results)
     evals = results.pop()
     positions = results.pop()
     return render_template('review.html', results = results, positions = positions, evals = evals)
