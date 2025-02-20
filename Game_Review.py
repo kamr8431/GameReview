@@ -320,7 +320,10 @@ class GameReview:
         #move_ind = 1
         white = True
         for move in moves:
-            self.prev_eval = self.read_move_eval(self.stockfish.get_top_moves(1)[0])
+            try:
+                self.prev_eval = self.read_move_eval(self.stockfish.get_top_moves(1)[0])
+            except:
+                break
             try:
                 uci_move = self.board.parse_san(move)
                 self.board.push(uci_move)

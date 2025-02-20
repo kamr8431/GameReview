@@ -12,14 +12,11 @@ def home():
 def review():
     username = request.form.get('username')
     link = request.form.get('game_link')
-    ''' try:
+    try:
         review = GameReview(username)
         results = review.gameReview(link)
     except Exception:
-        return render_template('error.html')'''
-    review = GameReview(username)
-    results = review.gameReview(link)
-    print(results)
+        return render_template('error.html')
     evals = results.pop()
     positions = results.pop()
     return render_template('review.html', results = results, positions = positions, evals = evals)
