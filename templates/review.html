@@ -203,7 +203,10 @@
 
          function updateBoard(moveIndex) {
             const move = results[1][moveIndex];
-            const evalValue = evals[moveIndex] / 100 || 0;
+            let evalValue = evals[moveIndex];
+            if (typeof evalValue === "number"){
+               evalValue = evalValue/100;
+            }
             const classification = classifications[moveIndex];
             document.getElementById('current-eval').innerText = evalValue;
             document.getElementById('current-classification-icon').src = classificationIcons[classification] || '';

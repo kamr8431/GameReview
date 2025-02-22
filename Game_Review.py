@@ -332,7 +332,12 @@ class GameReview:
                 continue
             self.eval = self.getEval(self.stockfish.get_evaluation())
             positions.append(self.board.fen())
-            evals.append(self.eval)
+            if (self.eval == float('inf')):
+                    evals.append("∞")
+            elif (self.eval == float('-inf')):
+                evals.append("-∞")
+            else:
+                evals.append(self.eval)
             #prev_eval, eval = eval, evaluation
             #print(prev_eval,eval,winning_chance(prev_eval),winning_chance(eval),move)
             if self.eval != float('inf') and self.eval != float('-inf') and self.prev_eval != float('inf') and self.prev_eval != float('-inf'):
