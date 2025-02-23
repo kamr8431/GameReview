@@ -12,6 +12,7 @@ def home():
 def review():
     username = request.form.get('username')
     link = request.form.get('game_link')
+    print(username)
     try:
         review = GameReview(username)
         results = review.gameReview(link)
