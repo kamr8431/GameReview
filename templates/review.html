@@ -3,7 +3,7 @@
    <head>
       <meta charset="UTF-8">
       <meta name="viewport" content="width=device-width, initial-scale=1.0">
-      <title>Game Review</title>
+      <link rel="icon" type="image/png" href="{{ url_for('static', filename='favicon.png') }}">;      <title>Game Review</title>
       <style>
          body {
             font-family: Arial, sans-serif;
@@ -121,6 +121,10 @@
          <table>
             <thead>
                <tr>
+                  <th colspan="2" id="white-accuracy"></th>
+                  <th colspan="2" id="black-accuracy"></th>
+               </tr>
+               <tr>
                   <th>White Moves</th>
                   <th>Classification</th>
                   <th>Black Moves</th>
@@ -170,7 +174,8 @@
          //const blackMoves = results[1].filter((_, i) => i % 2 !== 0);
          const classifications = results[0];
          //const maxMoves = Math.max(whiteMoves.length, blackMoves.length);
-
+         document.getElementById("white-accuracy").innerText = results[results.length-2];
+         document.getElementById("black-accuracy").innerText = results[results.length-1];
          for (let i = 0; i < results[1].length; i+=2) {
             const row = document.createElement("tr");
             row.innerHTML = `

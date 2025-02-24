@@ -21,6 +21,7 @@ class GameReview:
         self.allgames = self.fetch_all_games()
         self.board = chess.Board()
         self.stockfish = Stockfish("/opt/render/project/src/stockfish")
+        #self.stockfish = Stockfish("/usr/local/bin/stockfish")
         self.prev_eval = 0
         self.eval = 39
         self.opening = ""
@@ -238,10 +239,6 @@ class GameReview:
         elif diff <= 0.02:
             return 'Excellent'
         elif diff <= 0.04:
-            last_move = self.board.pop()
-            self.stockfish.set_fen_position(self.board.fen())
-            self.board.push(last_move)
-            self.stockfish.set_fen_position(self.board.fen())
             return 'Good'
         elif diff <= 0.08:
             return 'Inaccuracy'
