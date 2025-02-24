@@ -16,7 +16,7 @@ def review():
     try:
         review = GameReview(username)
         results = review.gameReview(link)
-        print(results)
+        #print(results)
     except Exception:
         return render_template('error.html')
     evals = results.pop()
