@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="icon" type="image/png" href="{{ url_for('static', filename='favicon.png') }}">;
+    <link rel="icon" type="image/png" href="{{ url_for('static', filename='favicon.png') }}">
     <title>Submit Game Info</title>
     <style>
         body {
@@ -40,11 +40,43 @@
         input[type="submit"]:hover {
             background-color: #218838;
         }
+
+        /* Centered Loading Screen */
+        #loadingBackground {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            display: none;
+            text-align: center;
+            z-index: 1000;
+        }
+
+        #loadingBackground img {
+            width: 100px; /* Adjust size */
+            height: auto;
+        }
+
+        #loadingText {
+            font-size: 18px;
+            font-weight: bold;
+            margin-top: 10px;
+            color: #333;
+        }
     </style>
 </head>
 <body>
+
+    <!-- Loading GIF with Text -->
+    <div id="loadingBackground">
+        <img src="{{ url_for('static', filename='loading.gif') }}" alt="Loading...">
+        <div id="loadingText">Loading...</div>
+        <div id="loadingText">Please Wait a Few Minutes for Your Review to be Generated</div>
+    </div>
+
     <h2>Enter Chess.com Game Details</h2>
-    <form action="/review" method="post">
+
+    <form id="reviewForm">
         <label for="username">Username:</label>
         <input type="text" id="username" name="username" required><br><br>
         
@@ -53,5 +85,39 @@
         
         <input type="submit" value="Submit">
     </form>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        $('#reviewForm').submit(function(e) {
+            e.preventDefault();  // Prevent default form submission
+
+            // Show the loading GIF and text
+            $('#loadingBackground').show();
+
+            // Get the form data
+            var formData = {
+                'username': $('#username').val(),
+                'game_link': $('#game_link').val()
+            };
+
+            // Send data to the server using AJAX
+            $.ajax({
+                type: 'POST',
+                url: '/review',
+                data: formData,
+                success: function(response) {
+                    // Replace entire page with the response (review.html)
+                    document.open();
+                    document.write(response);
+                    document.close();
+                },
+                error: function() {
+                    $('#loadingBackground').hide();
+                    alert('An error occurred. Please try again.');
+                }
+            });
+        });
+    </script>
+
 </body>
 </html>
